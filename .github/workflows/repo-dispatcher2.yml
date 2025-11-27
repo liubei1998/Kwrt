@@ -1,0 +1,82 @@
+#=================================================
+# Description: Build OpenWrt using GitHub Actions (Single Target Dispatch)
+#=================================================
+
+name: Repo Dispatcher
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "选择要编译的目标架构 (target)"
+        required: true
+        type: choice
+        options:
+          - rockchip_armv8
+          - x86_64
+          - x86_generic
+          - bcm27xx_bcm2712
+          - bcm27xx_bcm2711
+          - bcm27xx_bcm2710
+          - bcm27xx_bcm2709
+          - bcm27xx_bcm2708
+          - armsr_armv8
+          - mediatek_mt7622
+          - mediatek_filogic
+          - qualcommax_ipq50xx
+          - ramips_mt7621
+          - ramips_mt7620
+          - ramips_mt76x8
+          - qualcommax_ipq807x
+          - ipq40xx_generic
+          - ipq806x_generic
+          - amlogic_meson8b
+          - qualcommax_ipq60xx
+          - mvebu_cortexa9
+          - bcm53xx
+          - sunxi_cortexa53
+          - sunxi_cortexa7
+          - ath79_nand
+          - amlogic_mesongx
+          - airoha_an7581
+
+env:
+  TOKEN_KIDDIN9: ${{ secrets.TOKEN_KIDDIN9 }}
+  TZ: Asia/Shanghai
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@main
+
+    - name: Cancel Running Workflows (optional)
+      if: contains(github.event.inputs.target, 'cancel')
+      uses: styfle/cancel-workflow-action@main
+      with:
+        workflow_id: all
+        access_token: ${{ secrets.TOKEN_KIDDIN9 }}
+
+    - name: Trigger Packages Update
+      run: |
+        gitdate=$(curl -H "Authorization: token ${{ secrets.TOKEN_KIDDIN9 }}" -s "https://api.github.com/repos/kiddin9/kwrt-packages/actions/runs" | jq -r '.workflow_runs[0].created_at')
+        gitdate=$(date -d "$gitdate" +%s)
+        now=$(date -d "$(date)" +%s)
+        if [[ $(expr $gitdate + 120) < $now ]]; then
+          curl -X POST https://api.github.com/repos/kiddin9/kwrt-packages/dispatches \
+          -H "Accept: application/vnd.github.everest-preview+json" \
+          -H "Authorization: token ${{ secrets.TOKEN_KIDDIN9 }}" \
+          --data '{"event_type": "update"}'
+        fi
+
+    - name: Trigger Compile (single target only)
+      run: |
+        sudo timedatectl set-timezone "$TZ"
+        echo "Triggering target: ${{ github.event.inputs.target }}"
+
+        curl \
+        -X POST https://api.github.com/repos/${{ github.repository }}/dispatches \
+        -H "Accept: application/vnd.github.everest-preview+json" \
+        -H "Authorization: token ${{ secrets.TOKEN_KIDDIN9 }}" \
+        -d '{"event_type": "'"${{ github.event.inputs.target }}"'", "client_payload": {"target": "'"${{ github.event.inputs.target }}"'"}}'
