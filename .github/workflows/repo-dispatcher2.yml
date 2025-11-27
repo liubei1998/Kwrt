@@ -2,7 +2,7 @@
 # Description: Build OpenWrt using GitHub Actions (Single Target Dispatch)
 #=================================================
 
-name: Repo Dispatcher
+name: Repo Dispatcher_select one
 
 on:
   workflow_dispatch:
