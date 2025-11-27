@@ -7,7 +7,8 @@ SHELL_FOLDER=$(dirname $(readlink -f "$0"))
 
 rm -rf package/boot target/linux/rockchip target/linux/generic
 
-git_clone_path master https://github.com/coolsnowwolf/lede target/linux/rockchip target/linux/generic package/boot
+#git_clone_path master https://github.com/coolsnowwolf/lede target/linux/rockchip target/linux/generic package/boot
+git_clone_path master https://github.com/liubei1998/lede target/linux/rockchip target/linux/generic package/boot
 
 wget -N https://github.com/istoreos/istoreos/raw/refs/heads/istoreos-23.05/target/linux/rockchip/patches-5.15/305-r2s-pwm-fan.patch -P target/linux/rockchip/patches-6.6/
 
