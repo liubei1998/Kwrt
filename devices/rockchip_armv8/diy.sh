@@ -35,3 +35,10 @@ sed -i -e 's,wpad-openssl,wpad-basic-mbedtls,g' target/linux/rockchip/image/armv
 sed -i -e 's/6.12/6.6/' -e 's/DEFAULT_PACKAGES +=/DEFAULT_PACKAGES += fdisk lsblk kmod-drm-rockchip luci-app-diskman/' -e 's/autocore-arm/autocore/' target/linux/rockchip/Makefile
 
 sed -i 's/Ariaboard/光影猫/' target/linux/rockchip/image/armv8.mk
+
+# 修改默认IP为 192.168.1.1
+sed -i "s/10.0.0/192.168.1/" package/base-files/files/bin/config_generate
+
+# 修改默认主机名为 G68_wifi
+sed -i "s/Kwrt/G68_wifi/g" package/base-files/files/bin/config_generate
+sed -i "s/OpenWrt/G68_wifi/g" package/base-files/files/bin/config_generate
